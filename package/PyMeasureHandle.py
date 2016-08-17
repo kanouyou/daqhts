@@ -12,9 +12,12 @@ import PyMonitorGui
 import PyKeithleyHandle
 import PyPowerControl
 import PyCurrentSupply
+import PyDataHandle
+import PyLogHandle as log
 
 from PyQt4 import QtGui, QtCore
 
+filename = "measurement"
 shunt_resistor = 0.25e-3
 
 ## class to read the random number for test
@@ -34,6 +37,7 @@ class PyTestThread(QtCore.QThread):
         self.stop = False
         for i in range(len(gpib)):
             print "set gpib: ", gpib[i]
+            log.Info("set gpib: ", gpib[i])
 
     ## stop this thread
     def Stop(self):
@@ -87,6 +91,7 @@ class PyControlThread(QtCore.QThread):
         #self.info_signal.emit(info[1])
         print "connected to ", self.ps.GetInstrInfo()
         print "set protection voltage to ", self.ps.GetProtectVolt(), " [V]"
+        log.Info("connected to ", self.ps.GetInstrInfo())
 
     ## turn off the current supply
     def TurnOff(self):
@@ -204,6 +209,7 @@ class PyMonitorHandle(QtGui.QMainWindow, PyMonitorGui.Ui_Monitor):
         self.setupUi(self)
         self.SetGrid()
         self.SetButtom()
+        self._cnt = 0
 
     ## setup run buttom
     def SetButtom(self):
@@ -233,7 +239,8 @@ class PyMonitorHandle(QtGui.QMainWindow, PyMonitorGui.Ui_Monitor):
     @QtCore.pyqtSlot(float, float, float)
     def Plot(self, data1, data2, data3):
         dt = time.time() - self._starttime
-        data = [data1, data2, data3]
+        data = np.array([data1, data2, data3], dtype="float")
+        self._output.FillAll(time.time(), data)
         self.draw(dt, data)
 
     ## finished the data
@@ -247,12 +254,15 @@ class PyMonitorHandle(QtGui.QMainWindow, PyMonitorGui.Ui_Monitor):
     @QtCore.pyqtSlot()
     def Stop(self):
         self.measure.Stop()
+        self._output.Close()
+        #plt.savefig("meas.pdf")
         self.measure.wait()
         self._start.setEnabled(True)
         self._stop.setEnabled(False)
 
     ## initialization
     def Initialization(self):
+        self._output = PyDataHandle.PyDataHandle(filename+str(self._cnt))
         self._starttime = time.time()
         self._data = {"m1":np.array([]), "m2":np.array([]), "m3":np.array([])}
         self._time = np.array([])
@@ -260,6 +270,7 @@ class PyMonitorHandle(QtGui.QMainWindow, PyMonitorGui.Ui_Monitor):
         for i in range(len(self._port)):
             gpib.append( "GPIB1::%i::INSTR" %self._port[i].value() )
         self.measure.Initialize( gpib )
+        self._cnt += 1
 
     ## sperate subplots
     def SetGrid(self):
@@ -280,7 +291,7 @@ class PyMonitorHandle(QtGui.QMainWindow, PyMonitorGui.Ui_Monitor):
 
     ## ploting
     def draw(self, t, data):
-        data[3] /= shunt_resistor
+        data[2] /= shunt_resistor
         QtGui.qApp.processEvents()
         for i in range(len(self._ax)):
             self._ax[i].clear()
@@ -296,6 +307,10 @@ class PyMonitorHandle(QtGui.QMainWindow, PyMonitorGui.Ui_Monitor):
         self._ax[2].plot(self._time, self._data["m3"], "k")
         self._ax[3].plot(self._data["m3"], self._data["m1"], "r", linewidth=0., marker="v", markeredgewidth=0.)
         self._ax[4].plot(self._data["m3"], self._data["m2"], "b", linewidth=0., marker="^", markeredgewidth=0.)
+        for i in range(len(self._ax)):
+            self._ax[i].set_ylabel("Voltage [V]")
+        self._ax[3].set_xlabel("Current [A]")
+        self._ax[4].set_xlabel("Current [A]")
         self.plot.draw()
 
 

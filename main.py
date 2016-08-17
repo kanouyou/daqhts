@@ -10,6 +10,15 @@ from PyQt4 import QtGui, QtCore
 import PyMeasureHandle
 
 
+def usage():
+    print "usage:"
+    print " python main.py [option]\n"
+    print "option:"
+    print "   -h or --help        usage of hts daq"
+    print "   -m or --monitor     run the data monitor"
+    print "   -c ot --control     run the power supply controller"
+
+
 def monitor():
     app  = QtGui.QApplication(sys.argv)
     form = PyMeasureHandle.PyMonitorHandle()
@@ -34,7 +43,8 @@ def multirun():
 
 
 if __name__=="__main__":
-    logger = PyLogHandle.PyLogHandle()
+    #logger = PyLogHandle.PyLogHandle()
+    #logger.SetLevel()
     opt = sys.argv
 
     if len(opt)>1:
@@ -42,6 +52,8 @@ if __name__=="__main__":
             monitor()
         elif opt[1]=="-c" or opt[1]=="--control":
             controller()
+        elif opt[1]=="-h" or opt[1]=="--help":
+            usage()
     else:
         while True:
             msg = raw_input(">> ")
@@ -56,6 +68,4 @@ if __name__=="__main__":
                 break
             else:
                 msg = raw_input(">> ")
-
-
-    print ">> finished "
+        print ">> finished "
