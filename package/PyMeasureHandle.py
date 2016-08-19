@@ -7,6 +7,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+import matplotlib.ticker as ptick
 
 import PyMonitorGui
 import PyKeithleyHandle
@@ -309,6 +310,8 @@ class PyMonitorHandle(QtGui.QMainWindow, PyMonitorGui.Ui_Monitor):
         self._ax[4].plot(self._data["m3"], self._data["m2"], "b", linewidth=0., marker="^", markeredgewidth=0.)
         for i in range(len(self._ax)):
             self._ax[i].set_ylabel("Voltage [V]")
+            self._ax[i].yaxis.set_major_formatter( ptick.ScalarFormatter(useMathText=True) )
+            self._ax[i].ticklabel_format(style="sci", axis="y", scilimits=(0,0))
         self._ax[3].set_xlabel("Current [A]")
         self._ax[4].set_xlabel("Current [A]")
         self.plot.draw()
