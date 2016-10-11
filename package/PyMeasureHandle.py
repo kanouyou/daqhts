@@ -92,7 +92,7 @@ class PyControlThread(QtCore.QThread):
         #self.info_signal.emit(info[1])
         print "connected to ", self.ps.GetInstrInfo()
         print "set protection voltage to ", self.ps.GetProtectVolt(), " [V]"
-        log.Info("connected to ", self.ps.GetInstrInfo())
+        #log.Info("connected to ", self.ps.GetInstrInfo())
 
     ## turn off the current supply
     def TurnOff(self):
@@ -314,6 +314,7 @@ class PyMonitorHandle(QtGui.QMainWindow, PyMonitorGui.Ui_Monitor):
             self._ax[i].ticklabel_format(style="sci", axis="y", scilimits=(0,0))
         self._ax[3].set_xlabel("Current [A]")
         self._ax[4].set_xlabel("Current [A]")
+        self._ax[2].set_ylabel("Current [A]")
         self.plot.draw()
 
 

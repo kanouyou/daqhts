@@ -56,6 +56,7 @@ class Ui_Control(object):
         self._portLabel.setObjectName(_fromUtf8("_portLabel"))
         self._limI = QtGui.QDoubleSpinBox(Control)
         self._limI.setGeometry(QtCore.QRect(20, 80, 91, 24))
+        self._limI.setRange(0., 900.)
         font = QtGui.QFont()
         font.setPointSize(11)
         self._limI.setFont(font)

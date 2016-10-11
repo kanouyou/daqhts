@@ -2,7 +2,7 @@
 
 import multiprocessing
 import sys
-sys.path.append("./package")
+sys.path.append("/Users/yangye/Documents/Experiment/HTS/critical/optdaq/v.1.2/package")
 
 import PyLogHandle
 
